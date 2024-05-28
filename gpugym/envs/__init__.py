@@ -34,5 +34,8 @@ from gpugym.utils.task_registry import task_registry
 from .PBRS.humanoid import Humanoid
 from .PBRS.humanoid_config import HumanoidCfg, HumanoidCfgPPO
 
+from .leg.leg import Leg
+from .leg.leg_config import LegCfg, LegCfgPPO
 
+task_registry.register("leg", Leg, LegCfg(), LegCfgPPO())
 task_registry.register("pbrs:humanoid", Humanoid, HumanoidCfg(), HumanoidCfgPPO())
