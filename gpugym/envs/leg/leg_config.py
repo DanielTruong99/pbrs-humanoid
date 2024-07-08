@@ -17,7 +17,8 @@ class LegCfg(LeggedRobotCfg):
 
     class terrain(LeggedRobotCfg.terrain):
         curriculum = False
-        mesh_type = 'plane'
+        mesh_type = 'trimesh'
+        terrain_proportions = [0.0, 0.0, 0.0, 0.0, 1.0] 
         measure_heights = False
 
     class commands(LeggedRobotCfg.commands):
@@ -30,9 +31,9 @@ class LegCfg(LeggedRobotCfg):
 
         class ranges:
             # TRAINING COMMAND RANGES #
-            lin_vel_x = [0, 4.5]        # min max [m/s]
+            lin_vel_x = [0, 1.5]        # min max [m/s]
             lin_vel_y = [-0.75, 0.75]   # min max [m/s]
-            ang_vel_yaw = [-2., 2.]     # min max [rad/s]
+            ang_vel_yaw = [-0.3, 0.3]     # min max [rad/s]
             heading = [0., 0.]
 
             # PLAY COMMAND RANGES #
@@ -44,16 +45,16 @@ class LegCfg(LeggedRobotCfg):
     class init_state(LeggedRobotCfg.init_state):
         reset_mode = 'reset_to_range'
         penetration_check = False
-        pos = [0., 0., 0.862]        # x,y,z [m]
+        pos = [0.0, 0., 0.88]        # x,y,z [m]
         rot = [0.0, 0.0, 0.0, 1.0]  # x,y,z,w [quat]
         lin_vel = [0.0, 0.0, 0.0]   # x,y,z [m/s]
         ang_vel = [0.0, 0.0, 0.0]   # x,y,z [rad/s]
 
         # ranges for [x, y, z, roll, pitch, yaw]
         root_pos_range = [
+            [0.0, 0.0],
             [0., 0.],
-            [0., 0.],
-            [0.862, 0.862],
+            [0.88, 0.88],
             [-torch.pi/10, torch.pi/10],
             [-torch.pi/10, torch.pi/10],
             [-torch.pi/10, torch.pi/10]
@@ -69,26 +70,38 @@ class LegCfg(LeggedRobotCfg):
             [-.5, .5]
         ]
 
+        # default_joint_angles = {
+        #     'R_hip_joint': 0.0,
+        #     'R_hip2_joint': 0.0,
+        #     'R_thigh_joint': -0.63,
+        #     'R_calf_joint': 1.3838,  # 0.6
+        #     'R_toe_joint': -0.7538,
+        #     'L_hip_joint': 0.0,
+        #     'L_hip2_joint': 0.0,
+        #     'L_thigh_joint': -0.63,
+        #     'L_calf_joint': 1.3838,  # 0.6
+        #     'L_toe_joint': -0.7538,
+        # }
         default_joint_angles = {
             'R_hip_joint': 0.0,
             'R_hip2_joint': 0.0,
-            'R_thigh_joint': 0.0,
-            'R_calf_joint': 0.0,  # 0.6
+            'R_thigh_joint': -0.2,
+            'R_calf_joint': 0.25,  # 0.6
             'R_toe_joint': 0.0,
             'L_hip_joint': 0.0,
             'L_hip2_joint': 0.0,
-            'L_thigh_joint': 0.0,
-            'L_calf_joint': 0.0,  # 0.6
+            'L_thigh_joint': -0.2,
+            'L_calf_joint': 0.25,  # 0.6
             'L_toe_joint': 0.0,
         }
 
         dof_pos_range = {
-            'R_hip_joint': [-0.1, -0.1],
+            'R_hip_joint': [-0.1, 0.1],
             'R_hip2_joint': [-0.2, 0.2],
             'R_thigh_joint': [-0.2, 0.2],
             'R_calf_joint': [0.0, 0.2],
             'R_toe_joint': [-0.3, 0.3],
-            'L_hip_joint': [-0.1, -0.1],
+            'L_hip_joint': [-0.1, 0.1],
             'L_hip2_joint': [-0.2, 0.2],
             'L_thigh_joint': [-0.2, 0.2],
             'L_calf_joint': [0.0, 0.2],
@@ -96,16 +109,16 @@ class LegCfg(LeggedRobotCfg):
         }
 
         dof_vel_range = {
-            'R_hip_joint': [-0.1, -0.1],
-            'R_hip2_joint': [-0.1, -0.1],
-            'R_thigh_joint': [-0.1, -0.1],
-            'R_calf_joint': [-0.1, -0.1],
-            'R_toe_joint': [-0.1, -0.1],
-            'L_hip_joint': [-0.1, -0.1],
-            'L_hip2_joint': [-0.1, -0.1],
-            'L_thigh_joint': [-0.1, -0.1],
-            'L_calf_joint': [-0.1, -0.1],
-            'L_toe_joint': [-0.1, -0.1],
+            'R_hip_joint': [-0.1, 0.1],
+            'R_hip2_joint': [-0.1, 0.1],
+            'R_thigh_joint': [-0.1, 0.1],
+            'R_calf_joint': [-0.1, 0.1],
+            'R_toe_joint': [-0.1, 0.1],
+            'L_hip_joint': [-0.1, 0.1],
+            'L_hip2_joint': [-0.1, 0.1],
+            'L_thigh_joint': [-0.1, 0.1],
+            'L_calf_joint': [-0.1, 0.1],
+            'L_toe_joint': [-0.1, 0.1],
         }
 
     class control(LeggedRobotCfg.control):
@@ -180,7 +193,7 @@ class LegCfg(LeggedRobotCfg):
     class rewards(LeggedRobotCfg.rewards):
         # ! "Incorrect" specification of height
         # base_height_target = 0.7
-        base_height_target = 0.7
+        base_height_target = 0.75
         soft_dof_pos_limit = 0.9
         soft_dof_vel_limit = 0.9
         soft_torque_limit = 0.8
@@ -276,6 +289,12 @@ class LegCfgPPO(LeggedRobotCfgPPO):
         max_grad_norm = 1.
 
     class runner(LeggedRobotCfgPPO.runner):
+        # policy_class_name = 'ActorCriticRecurrent'
+        # resume = True
+        # # resume_path = 'logs/LegLocomotion/Jun11_11-52-33_Demo'
+        # load_run = "Jun11_11-52-33_Demo"
+        # checkpoint = "6350"
+        
         num_steps_per_env = 24
         max_iterations = 10000
         run_name = 'Demo'
@@ -289,3 +308,7 @@ class LegCfgPPO(LeggedRobotCfgPPO):
         critic_hidden_dims = [256, 256, 256]
         # (elu, relu, selu, crelu, lrelu, tanh, sigmoid)
         activation = 'elu'
+
+        # rnn_type = 'lstm'
+        # rnn_hidden_size = 256
+        # rnn_num_layers = 2

@@ -10,7 +10,7 @@ from gpugym.envs.base.legged_robot_config \
 
 class HumanoidCfg(LeggedRobotCfg):
     class env(LeggedRobotCfg.env):
-        num_envs = 4096
+        num_envs = 1
         num_observations = 38
         num_actions = 10
         episode_length_s = 5
@@ -283,7 +283,7 @@ class HumanoidCfgPPO(LeggedRobotCfgPPO):
 
     class runner(LeggedRobotCfgPPO.runner):
         num_steps_per_env = 24
-        max_iterations = 1000
+        max_iterations = 10000
         run_name = 'ICRA2023'
         experiment_name = 'PBRS_HumanoidLocomotion'
         save_interval = 50

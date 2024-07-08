@@ -9,24 +9,10 @@ from isaacgym.torch_utils import *
 from gpugym.utils.math import *
 from gpugym.envs import LeggedRobot
 
+from isaacgym import gymtorch, gymapi, gymutil
+
 
 class Leg(LeggedRobot):
-
-    def _resample_commands(self, env_ids):
-        """ Randommly select commands of some environments
-
-        Args:
-            env_ids (List[int]): Environments ids for which new commands are needed
-        """
-        self.commands[env_ids, 0] = 0.8
-        self.commands[env_ids, 1] = 0.0
-        if self.cfg.commands.heading_command:
-            self.commands[env_ids, 3] = 0.0
-        elif self.cfg.commands.ang_vel_command:
-            self.commands[env_ids, 2] = 0.0
-
-        # set small commands to zero
-        self.commands[env_ids, :2] *= (torch.norm(self.commands[env_ids, :2], dim=1) > 0.2).unsqueeze(1)
 
     def _custom_init(self, cfg):
         self.dt_step = self.cfg.sim.dt * self.cfg.control.decimation
@@ -38,7 +24,12 @@ class Leg(LeggedRobot):
         self.phase_freq = 1.
 
     def compute_observations(self):
+        # add perceptive inputs if not blind
+        # if self.cfg.terrain.measure_heights:
+        #     base_z = torch.clip(self.root_states[:, 2].unsqueeze(1) - 0.5 - self.measured_heights, -1, 1.)*self.obs_scales.height_measurements
+        # else:  
         base_z = self.root_states[:, 2].unsqueeze(1)*self.obs_scales.base_z
+
         in_contact = torch.gt(
             self.contact_forces[:, self.end_eff_ids, 2], 0).int()
         in_contact = torch.cat(
@@ -104,10 +95,41 @@ class Leg(LeggedRobot):
             pass  # when the joystick is used, the self.commands variables are overridden
         else:
             self._resample_commands(env_ids)
+
             if (self.cfg.domain_rand.push_robots and
                 (self.common_step_counter
                 % self.cfg.domain_rand.push_interval == 0)):
                 self._push_robots()
+
+        if self.cfg.terrain.measure_heights:
+            self.measured_heights = self._get_heights()
+
+    def _draw_debug_vis(self):
+        # draws height measurement points
+        super()._draw_debug_vis()
+
+        # draws base frame
+        axes_geom = gymutil.AxesGeometry(1, None)
+        base_pos = (self.root_states[0, :3]).cpu().numpy()
+        base_quat = self.base_quat[0].cpu().numpy()
+        axes_pose = gymapi.Transform(gymapi.Vec3(*base_pos), gymapi.Quat(*base_quat))
+        gymutil.draw_lines(axes_geom, self.gym, self.viewer, self.envs[0], axes_pose)
+
+        # draws contact force
+        contact_forces = self.contact_forces.cpu().numpy()
+        for body_index, contact_force in enumerate(contact_forces[0]):
+            if np.linalg.norm(contact_force) < 1e-5: continue
+            
+            body_pos = self._rigid_body_pos[0, body_index].cpu().numpy()
+            end_pos = body_pos + 0.5 * contact_force / np.linalg.norm(contact_force)
+            verts = np.empty((1, 2), gymapi.Vec3.dtype)
+            verts[0][0] = (body_pos[0], body_pos[1], body_pos[2])
+            verts[0][1] = (end_pos[0], end_pos[1], end_pos[2])
+            self.gym.add_lines(self.viewer, self.envs[0], 1, verts, (1.0, 0.0, 0.0))
+
+
+
+
 
     def _push_robots(self):
         # Randomly pushes the robots.
@@ -136,11 +158,12 @@ class Leg(LeggedRobot):
           torch.abs(self.projected_gravity[:, 0:1]) > 0.7, dim=1)
         self.reset_buf |= torch.any(
           torch.abs(self.projected_gravity[:, 1:2]) > 0.7, dim=1)
-        self.reset_buf |= torch.any(self.base_pos[:, 2:3] < 0.3, dim=1)
+        # self.reset_buf |= torch.any(self.base_pos[:, 2:3] < 0.3, dim=1)
 
         # # no terminal reward for time-outs
         self.time_out_buf = self.episode_length_buf > self.max_episode_length
         self.reset_buf |= self.time_out_buf
+
 
 # ########################## REWARDS ######################## #
 

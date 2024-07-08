@@ -11,14 +11,14 @@
         xyz="-7.027E-14 -3.9404E-13 0.058682"
         rpy="0 0 0" />
       <mass
-        value="8.0" />
+        value="16.0" />
       <inertia
-        ixx="0.164672"
-        ixy="0.000011"
+        ixx="0.329343"
+        ixy="0.000022"
         ixz="0"
-        iyy="0.078139"
+        iyy="0.156277"
         iyz="0"
-        izz="0.152254" />
+        izz="0.304508" />
     </inertial>
     <visual>
       <origin
@@ -90,9 +90,9 @@
     <limit
       lower="-1.5"
       upper="1.5"
-      effort="500"
+      effort="50"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.01188"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
   <link
     name="R_hip2">
@@ -140,9 +140,9 @@
     <limit
       lower="-1"
       upper="0.5"
-      effort="500"
+      effort="50"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.01188"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
   <link
     name="R_thigh">
@@ -174,14 +174,11 @@
           rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
-        <collision>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <mesh
-          filename="meshes/R_thigh.STL" />
-      </geometry>
+    <collision>
+        <origin rpy="0 0 0" xyz="0.0 0.0 -0.16"/>
+        <geometry>
+            <cylinder radius="0.040" length="0.29"/>
+        </geometry><!---->
     </collision>
   </link>
   <joint
@@ -199,9 +196,9 @@
     <limit
       lower="-1.7"
       upper="0"
-      effort="500"
+      effort="100"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.0198"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
   <link
     name="R_calf">
@@ -234,13 +231,10 @@
       </material>
     </visual>
     <collision>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <mesh
-          filename="meshes/R_calf.STL" />
-      </geometry>
+        <origin rpy="0 0 0" xyz="0.0 0.0 -0.16"/>
+        <geometry>
+            <cylinder radius="0.040" length="0.29"/>
+        </geometry>
     </collision>
   </link>
   <joint
@@ -258,9 +252,9 @@
     <limit
       lower="0"
       upper="2"
-      effort="500"
+      effort="250"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.0792"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
   <link
     name="R_toe">
@@ -317,9 +311,8 @@
     <limit
       lower="-0.8"
       upper="0.8"
-      effort="500"
+      effort="100"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.04752"/>
   </joint>
   <link
     name="L_hip">
@@ -367,9 +360,9 @@
     <limit
       lower="-1.5"
       upper="1.5"
-      effort="500"
+      effort="50"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.01188"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
   <link
     name="L_hip2">
@@ -417,9 +410,9 @@
     <limit
       lower="-0.5"
       upper="1"
-      effort="500"
+      effort="50"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.01188"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
   <link
     name="L_thigh">
@@ -452,13 +445,10 @@
       </material>
     </visual>
     <collision>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <mesh
-          filename="meshes/L_thigh.STL" />
-      </geometry>
+        <origin rpy="0 0 0" xyz="0.0 0.0 -0.16"/>
+        <geometry>
+            <cylinder radius="0.040" length="0.29"/>
+        </geometry>
     </collision>
   </link>
   <joint
@@ -476,9 +466,9 @@
     <limit
       lower="-1.7"
       upper="0"
-      effort="500"
+      effort="100"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.0198"/>
+    <dynamics damping="0.0" friction="0.0"/>
   </joint>
   <link
     name="L_calf">
@@ -511,13 +501,10 @@
       </material>
     </visual>
     <collision>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <mesh
-          filename="meshes/L_calf.STL" />
-      </geometry>
+        <origin rpy="0 0 0" xyz="0.0 0.0 -0.16"/>
+        <geometry>
+            <cylinder radius="0.040" length="0.29"/>
+        </geometry>
     </collision>
   </link>
   <joint
@@ -535,9 +522,8 @@
     <limit
       lower="0"
       upper="2"
-      effort="500"
+      effort="250"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.0792"/>
   </joint>
   <link
     name="L_toe">
@@ -594,8 +580,7 @@
     <limit
       lower="-0.8"
       upper="0.8"
-      effort="500"
+      effort="100"
       velocity="50" />
-    <dynamics damping="0.0" friction="0.0" rotor_inertia="0.04752"/>
   </joint>
 </robot>
