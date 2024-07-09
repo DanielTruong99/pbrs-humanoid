@@ -1,4 +1,4 @@
-gpugym/analysis/data
+gpugym/analysis/data/*.csv
 gpugym/.vscode*
 logs/
 gpugym/scripts/wandb/
