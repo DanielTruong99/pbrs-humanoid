@@ -37,5 +37,9 @@ from .PBRS.humanoid_config import HumanoidCfg, HumanoidCfgPPO
 from .leg.leg import Leg
 from .leg.leg_config import LegCfg, LegCfgPPO
 
+from .leg_amp.leg_amp import LegAMP
+from .leg_amp.leg_amp_config import LegAMPCfg, LegAMPCfgPPO
+
 task_registry.register("leg", Leg, LegCfg(), LegCfgPPO())
+task_registry.register("leg_amp", LegAMP, LegAMPCfg(), LegAMPCfgPPO())
 task_registry.register("pbrs:humanoid", Humanoid, HumanoidCfg(), HumanoidCfgPPO())
