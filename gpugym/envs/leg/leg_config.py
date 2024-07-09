@@ -17,7 +17,7 @@ class LegCfg(LeggedRobotCfg):
 
     class terrain(LeggedRobotCfg.terrain):
         curriculum = False
-        mesh_type = 'trimesh'
+        mesh_type = 'plane'
         terrain_proportions = [0.0, 0.0, 0.0, 0.0, 1.0] 
         measure_heights = False
 
