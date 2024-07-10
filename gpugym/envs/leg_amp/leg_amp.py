@@ -33,6 +33,62 @@ class LegAMP(LeggedRobot):
 
         self.include_history_steps = cfg.env.include_history_steps
 
+    def reset(self):
+        """ Reset all robots"""
+        self.reset_idx(torch.arange(self.num_envs, device=self.device))
+        obs, privileged_obs, _, _, _, _, _ = self.step(torch.zeros(self.num_envs, self.num_actions, device=self.device, requires_grad=False))
+        return obs, privileged_obs        
+
+    def step(self, actions):
+        """ Apply actions, simulate, call self.post_physics_step()
+
+        Args:
+            actions (torch.Tensor): Tensor of shape (num_envs, num_actions_per_env)
+        """
+        if self.cfg.asset.disable_actions:
+            self.actions[:] = 0.
+        else:
+            clip_actions = self.cfg.normalization.clip_actions
+            self.actions = torch.clip(actions, -clip_actions, clip_actions).to(self.device)
+        self.pre_physics_step()
+        # step physics and render each frame
+        self.render()
+        for _ in range(self.cfg.control.decimation):
+
+            if self.cfg.control.exp_avg_decay:
+                self.action_avg = exp_avg_filter(self.actions, self.action_avg,
+                                                self.cfg.control.exp_avg_decay)
+                self.torques = self._compute_torques(self.action_avg).view(self.torques.shape)
+            else:
+                self.torques = self._compute_torques(self.actions).view(self.torques.shape)
+
+            if self.cfg.asset.disable_motors:
+                self.torques[:] = 0.
+
+            self.gym.set_dof_actuation_force_tensor(self.sim, gymtorch.unwrap_tensor(self.torques))
+            self.gym.simulate(self.sim)
+            if self.device == 'cpu':
+                self.gym.fetch_results(self.sim, True)
+            self.gym.refresh_dof_state_tensor(self.sim)
+        
+        # Need to override the post_physics_step method to return terminal states
+        reset_env_ids, terminal_amp_states = self.post_physics_step()
+
+        # return clipped obs, clipped states (None), rewards, dones and infos
+        clip_obs = self.cfg.normalization.clip_observations
+        self.obs_buf = torch.clip(self.obs_buf, -clip_obs, clip_obs)
+        if self.privileged_obs_buf is not None:
+            self.privileged_obs_buf = torch.clip(self.privileged_obs_buf,
+                                                 -clip_obs, clip_obs)
+        
+        return self.obs_buf, self.privileged_obs_buf, self.rew_buf, self.reset_buf, self.extras, reset_env_ids, terminal_amp_states
+
+    def post_physics_step(self):
+        super().post_physics_step()
+        env_ids = self.reset_buf.nonzero(as_tuple=False).flatten()
+        terminal_amp_states = self.get_amp_observations()[env_ids]
+        return env_ids, terminal_amp_states
+
     def compute_observations(self):
         # add perceptive inputs if not blind
         # if self.cfg.terrain.measure_heights:
