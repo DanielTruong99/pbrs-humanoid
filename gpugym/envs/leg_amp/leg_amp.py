@@ -90,11 +90,11 @@ class LegAMP(LeggedRobot):
         return env_ids, terminal_amp_states
 
     def compute_observations(self):
-        # add perceptive inputs if not blind
-        # if self.cfg.terrain.measure_heights:
-        #     base_z = torch.clip(self.root_states[:, 2].unsqueeze(1) - 0.5 - self.measured_heights, -1, 1.)*self.obs_scales.height_measurements
-        # else:  
-        base_z = self.root_states[:, 2].unsqueeze(1)*self.obs_scales.base_z
+  
+        if self.cfg.terrain.measure_heights:
+            base_z = torch.clip(self.root_states[:, 2].unsqueeze(1) - 0.5 - self.measured_heights, -1, 1.)*self.obs_scales.base_z
+        else:
+            base_z = self.root_states[:, 2].unsqueeze(1)*self.obs_scales.base_z
 
         in_contact = torch.gt(
             self.contact_forces[:, self.end_eff_ids, 2], 0).int()

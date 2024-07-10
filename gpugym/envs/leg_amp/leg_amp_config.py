@@ -22,9 +22,36 @@ class LegAMPCfg(LeggedRobotCfg):
 
     class terrain(LeggedRobotCfg.terrain):
         curriculum = False
-        mesh_type = 'plane'
+        mesh_type = 'trimesh'
         terrain_proportions = [0.0, 0.0, 0.0, 0.0, 1.0] 
-        measure_heights = False
+        measure_heights = True
+
+        num_rows = 4
+        num_cols = 2
+
+        selected = True
+        user_custom_terrain = True
+        custom_terrain_kwargs = [
+            {
+                'type': 'terrain_utils.random_uniform_terrain',
+                'options': {
+                    'min_height': -0.05,
+                    'max_height': 0.05, 
+                    'step' : 0.005, 
+                    'downsampled_scale': 0.2
+                }
+            },
+            {
+                'type': 'terrain_utils.discrete_obstacles_terrain',
+                'options': {
+                    'max_height': 0.05,
+                    'min_size': 1,
+                    'max_size': 2,
+                    'num_rects': 20,
+                    'platform_size': 3
+                }            
+            }
+        ]
 
     class commands(LeggedRobotCfg.commands):
         curriculum = False
