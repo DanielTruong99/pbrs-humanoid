@@ -31,6 +31,8 @@ class LegAMP(LeggedRobot):
             time_between_frames=self.dt
         )
 
+        self.include_history_steps = cfg.env.include_history_steps
+
     def compute_observations(self):
         # add perceptive inputs if not blind
         # if self.cfg.terrain.measure_heights:
@@ -65,6 +67,23 @@ class LegAMP(LeggedRobot):
         if self.add_noise:
             self.obs_buf += (2*torch.rand_like(self.obs_buf) - 1) \
                 * self.noise_scale_vec
+            
+    def foot_positions_in_base_frame(self):
+        right_foot_pos = self._rigid_body_pos[:, 5, :]; left_foot_pos = self._rigid_body_pos[:, 10, :]
+        right_foot_pos_from_base = right_foot_pos - self.base_pos; left_foot_pos_from_base = left_foot_pos - self.base_pos
+    
+        base_frame_right_foot_pos_from_base = quat_rotate_inverse(self.base_quat, right_foot_pos_from_base)
+        base_frame_left_foot_pos_from_base = quat_rotate_inverse(self.base_quat, left_foot_pos_from_base)
+        return torch.cat((base_frame_right_foot_pos_from_base, base_frame_left_foot_pos_from_base), dim=-1)
+    
+    def get_amp_observations(self):
+        joint_pos = self.dof_pos
+        foot_pos = self.foot_positions_in_base_frame()
+        base_lin_vel = self.base_lin_vel
+        base_ang_vel = self.base_ang_vel
+        joint_vel = self.dof_vel
+        z_pos = self.root_states[:, 2:3]
+        return torch.cat((joint_pos, foot_pos, base_lin_vel, base_ang_vel, joint_vel, z_pos), dim=-1)
 
     def _get_noise_scale_vec(self, cfg):
         noise_vec = torch.zeros_like(self.obs_buf[0])

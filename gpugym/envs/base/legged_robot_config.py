@@ -258,7 +258,7 @@ class LeggedRobotCfgPPO(BaseConfig):
         max_grad_norm = 1.
         # adam optimizer options
         learning_rate = 1.e-4 # 5.e-4
-        weight_decay = 0
+        # weight_decay = 0
 
 
     class runner:

@@ -18,6 +18,7 @@ class LegAMPCfg(LeggedRobotCfg):
         episode_length_s = 5
 
         amp_motion_files = MOTION_FILES
+        include_history_steps = None
 
     class terrain(LeggedRobotCfg.terrain):
         curriculum = False
@@ -276,7 +277,7 @@ class LegAMPCfg(LeggedRobotCfg):
 class LegAMPCfgPPO(LeggedRobotCfgPPO):
     do_wandb = True
     seed = -1
-
+    runner_class_name = 'AMPOnPolicyRunner'
     class algorithm(LeggedRobotCfgPPO.algorithm):
         # algorithm training hyperparameters
         value_loss_coef = 1.0
@@ -293,12 +294,12 @@ class LegAMPCfgPPO(LeggedRobotCfgPPO):
         max_grad_norm = 1.
 
     class runner(LeggedRobotCfgPPO.runner):
-        # policy_class_name = 'ActorCriticRecurrent'
+        # policy_class_name = 'A'
         # resume = True
         # # resume_path = 'logs/LegLocomotion/Jun11_11-52-33_Demo'
         # load_run = "Jun11_11-52-33_Demo"
         # checkpoint = "6350"
-        
+        policy_class_name = 'ActorCritic'
         num_steps_per_env = 24
         max_iterations = 10000
         run_name = 'Demo'
@@ -306,6 +307,15 @@ class LegAMPCfgPPO(LeggedRobotCfgPPO):
         save_interval = 50
         plot_input_gradients = False
         plot_parameter_gradients = False
+
+        algorithm_class_name = 'AMPPPO'
+        amp_reward_coef = 2.0
+        amp_motion_files = MOTION_FILES
+        amp_num_preload_transitions = 2000000
+        amp_task_reward_lerp = 0.3
+        amp_discr_hidden_dims = [1024, 512]
+
+        min_normalized_std = [1.0] * 10
 
     class policy(LeggedRobotCfgPPO.policy):
         actor_hidden_dims = [256, 256, 256]
