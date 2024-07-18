@@ -44,7 +44,7 @@ def train(args):
     # Override configuration for debugging
     args.task = 'leg_amp'
     args.headless = True
-    args.num_envs = 1
+    args.num_envs = 2
 
     env, env_cfg = task_registry.make_env(name=args.task, args=args)
     ppo_runner, train_cfg = task_registry.make_alg_runner(env=env, name=args.task, args=args)

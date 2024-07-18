@@ -3,10 +3,40 @@ import numpy as np
 import time
 import pybullet
 import pybullet_data as pd
-from poselib.core.rotation3d import *
-from poselib.skeleton.skeleton3d import SkeletonTree, SkeletonState, SkeletonMotion
-from poselib.visualization.common import plot_skeleton_state
+from gpugym.envs.leg_amp.amp.poselib.poselib.core.rotation3d import *
+from gpugym.envs.leg_amp.amp.poselib.poselib.skeleton.skeleton3d import SkeletonTree, SkeletonState, SkeletonMotion
+from gpugym.envs.leg_amp.amp.poselib.poselib.visualization.common import plot_skeleton_state
 
+class CustomSkeletonMotion(SkeletonMotion):
+    def __init__(self, tensor_backend, skeleton_tree, is_local, *args, **kwargs):
+        super().__init__(tensor_backend, skeleton_tree, is_local, *args, **kwargs)
+        self._dof_pos = None 
+        self._dof_vel = None 
+
+    @property
+    def dof_pos(self):
+        return self._dof_pos
+    
+    @property
+    def dof_vel(self):
+        return self._dof_vel
+    
+    def set_dof_state(self, dof_pos):
+        self._dof_pos = dof_pos
+        self._compute_dof_vel()
+
+    def _compute_dof_vel(self):
+        if self._dof_pos is None:
+            raise ValueError("dof_pos is not set")
+        
+        time_delta = 1.0 / self.fps
+        theta = self._dof_pos
+        self._dof_vel = torch.from_numpy(
+            filters.gaussian_filter1d(
+                np.gradient(theta, axis=0), 2, axis=0, mode="nearest"
+            )
+            / time_delta,
+        )
 
 ''' Pybullet setup'''
 p = pybullet

@@ -1417,3 +1417,87 @@ class SkeletonMotion(SkeletonState):
             z_up,
         )
 
+class CustomSkeletonMotion(SkeletonMotion):
+    def __init__(self, tensor_backend, skeleton_tree, is_local, *args, **kwargs):
+        super().__init__(tensor_backend, skeleton_tree, is_local, *args, **kwargs)
+        self._dof_pos = None 
+        self._dof_vel = None 
+
+    @classmethod
+    def from_dict(
+        cls: Type["CustomSkeletonMotion"], dict_repr: OrderedDict, *args, **kwargs
+    ) -> "CustomSkeletonMotion":
+        rot = TensorUtils.from_dict(dict_repr["rotation"], *args, **kwargs)
+        rt = TensorUtils.from_dict(dict_repr["root_translation"], *args, **kwargs)
+        vel = TensorUtils.from_dict(dict_repr["global_velocity"], *args, **kwargs)
+        avel = TensorUtils.from_dict(
+            dict_repr["global_angular_velocity"], *args, **kwargs
+        )
+        dof_pos = TensorUtils.from_dict(dict_repr["dof_pos"], *args, **kwargs)
+        dof_vel = TensorUtils.from_dict(dict_repr["dof_vel"], *args, **kwargs)
+
+        instance = cls(
+            CustomSkeletonMotion._to_state_vector(rot, rt, vel, avel),
+            skeleton_tree=SkeletonTree.from_dict(
+                dict_repr["skeleton_tree"], *args, **kwargs
+            ),
+            is_local=dict_repr["is_local"],
+            fps=dict_repr["fps"],
+        )
+
+        instance.dof_pos = dof_pos
+        instance.dof_vel = dof_vel
+        
+        return instance
+
+    def to_dict(self) -> OrderedDict:
+        return OrderedDict(
+            [
+                ("rotation", tensor_to_dict(self.rotation)),
+                ("root_translation", tensor_to_dict(self.root_translation)),
+                ("global_velocity", tensor_to_dict(self.global_velocity)),
+                ("global_angular_velocity", tensor_to_dict(self.global_angular_velocity)),
+                ("skeleton_tree", self.skeleton_tree.to_dict()),
+                ("is_local", self.is_local),
+                ("fps", self.fps),
+                ("dof_pos", tensor_to_dict(self.dof_pos)),
+                ("dof_vel", tensor_to_dict(self.dof_vel)),
+            ]
+        )
+
+
+    @property
+    def dof_pos(self):
+        return self._dof_pos
+    
+    @dof_pos.setter
+    def dof_pos(self, dof_pos):
+        self._dof_pos = dof_pos
+
+
+    @property
+    def dof_vel(self):
+        return self._dof_vel
+
+    @dof_vel.setter
+    def dof_vel(self, dof_vel):
+        self._dof_vel = dof_vel
+
+    def set_dof_state(self, dof_pos):
+        self._dof_pos = dof_pos
+        self._compute_dof_vel()
+
+    def _compute_dof_vel(self):
+        if self._dof_pos is None:
+            raise ValueError("dof_pos is not set")
+        
+        time_delta = 1.0 / self.fps
+        theta = self._dof_pos
+        self._dof_vel = torch.from_numpy(
+            filters.gaussian_filter1d(
+                np.gradient(theta, axis=0), 2, axis=0, mode="nearest"
+            )
+            / time_delta,
+        )
+
+        self._dof_pos = torch.from_numpy(theta)

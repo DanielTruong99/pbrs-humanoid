@@ -22,36 +22,36 @@ class LegAMPCfg(LeggedRobotCfg):
 
     class terrain(LeggedRobotCfg.terrain):
         curriculum = False
-        mesh_type = 'trimesh'
+        mesh_type = 'plane'
         terrain_proportions = [0.0, 0.0, 0.0, 0.0, 1.0] 
-        measure_heights = True
+        measure_heights = False
 
-        num_rows = 4
-        num_cols = 2
+        # num_rows = 4
+        # num_cols = 2
 
-        selected = True
-        user_custom_terrain = True
-        custom_terrain_kwargs = [
-            {
-                'type': 'terrain_utils.random_uniform_terrain',
-                'options': {
-                    'min_height': -0.05,
-                    'max_height': 0.05, 
-                    'step' : 0.005, 
-                    'downsampled_scale': 0.2
-                }
-            },
-            {
-                'type': 'terrain_utils.discrete_obstacles_terrain',
-                'options': {
-                    'max_height': 0.05,
-                    'min_size': 1,
-                    'max_size': 2,
-                    'num_rects': 20,
-                    'platform_size': 3
-                }            
-            }
-        ]
+        # selected = True
+        # user_custom_terrain = True
+        # custom_terrain_kwargs = [
+        #     {
+        #         'type': 'terrain_utils.random_uniform_terrain',
+        #         'options': {
+        #             'min_height': -0.05,
+        #             'max_height': 0.05, 
+        #             'step' : 0.005, 
+        #             'downsampled_scale': 0.2
+        #         }
+        #     },
+        #     {
+        #         'type': 'terrain_utils.discrete_obstacles_terrain',
+        #         'options': {
+        #             'max_height': 0.05,
+        #             'min_size': 1,
+        #             'max_size': 2,
+        #             'num_rects': 20,
+        #             'platform_size': 3
+        #         }            
+        #     }
+        # ]
 
     class commands(LeggedRobotCfg.commands):
         curriculum = False
@@ -225,7 +225,7 @@ class LegAMPCfg(LeggedRobotCfg):
     class rewards(LeggedRobotCfg.rewards):
         # ! "Incorrect" specification of height
         # base_height_target = 0.7
-        base_height_target = 0.75
+        base_height_target = 0.8
         soft_dof_pos_limit = 0.9
         soft_dof_vel_limit = 0.9
         soft_torque_limit = 0.8

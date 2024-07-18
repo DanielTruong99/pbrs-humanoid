@@ -8,7 +8,7 @@ from isaacgym import gymtorch
 from isaacgym.torch_utils import *
 from gpugym.utils.math import *
 from gpugym.envs import LeggedRobot
-from gpugym.envs.leg_amp.amp.motion_loader import MotionLib
+from gpu_rl.rsl_rl.datasets.motion_loader import AMPLoader
 
 from isaacgym import gymtorch, gymapi, gymutil
 
@@ -25,7 +25,7 @@ class LegAMP(LeggedRobot):
         self.phase_freq = 1.
 
         # Load the motion files into the MotionLib
-        self._motion_lib = MotionLib(
+        self._motion_lib = AMPLoader(
             motion_files=self.cfg.env.amp_motion_files, 
             device=self.device, 
             time_between_frames=self.dt
@@ -139,7 +139,7 @@ class LegAMP(LeggedRobot):
         base_ang_vel = self.base_ang_vel
         joint_vel = self.dof_vel
         z_pos = self.root_states[:, 2:3]
-        return torch.cat((joint_pos, foot_pos, base_lin_vel, base_ang_vel, joint_vel, z_pos), dim=-1)
+        return torch.cat((self.base_quat, base_lin_vel, base_ang_vel, joint_pos, joint_vel, z_pos, foot_pos), dim=-1)
 
     def _get_noise_scale_vec(self, cfg):
         noise_vec = torch.zeros_like(self.obs_buf[0])
