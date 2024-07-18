@@ -11,7 +11,7 @@ from rsl_rl.utils import utils
 from rsl_rl.datasets import pose3d
 from rsl_rl.datasets import motion_util
 
-from gpugym.envs.leg_amp.amp.poselib.poselib.skeleton.skeleton3d import CustomSkeletonMotion
+from script.amp.poselib.poselib.skeleton.skeleton3d import CustomSkeletonMotion
 from isaacgym.torch_utils import *
 
 class AMPLoader:
