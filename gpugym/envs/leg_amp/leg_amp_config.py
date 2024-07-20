@@ -345,8 +345,8 @@ class LegAMPCfgPPO(LeggedRobotCfgPPO):
         min_normalized_std = [1.0] * 10
 
     class policy(LeggedRobotCfgPPO.policy):
-        actor_hidden_dims = [256, 256, 256]
-        critic_hidden_dims = [256, 256, 256]
+        actor_hidden_dims = [512, 256, 128]
+        critic_hidden_dims = [512, 256, 128]
         # (elu, relu, selu, crelu, lrelu, tanh, sigmoid)
         activation = 'elu'
 
