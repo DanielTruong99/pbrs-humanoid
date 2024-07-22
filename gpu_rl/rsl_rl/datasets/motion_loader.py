@@ -238,6 +238,8 @@ class AMPLoader:
             trajectory = self.trajectories_full[traj_idx]
             traj_mask = traj_idxs == traj_idx
             all_frame_rot_starts[traj_mask] = AMPLoader.get_root_rot_batch(trajectory[idx_low[traj_mask]])
+            if torch.isnan(all_frame_rot_starts).any():
+                print(f'Found NaN rotation in trajectory {traj_idx}. Skipping...')
             all_frame_rot_ends[traj_mask] = AMPLoader.get_root_rot_batch(trajectory[idx_high[traj_mask]])
             all_frame_amp_starts[traj_mask] = trajectory[idx_low[traj_mask]][:, AMPLoader.ROOT_ROT_END_IDX:]
             all_frame_amp_ends[traj_mask] = trajectory[idx_high[traj_mask]][:, AMPLoader.ROOT_ROT_END_IDX:]

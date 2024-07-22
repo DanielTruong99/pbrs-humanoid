@@ -170,7 +170,7 @@ def quaternion_slerp(q0, q1, fraction, spin=0, shortestpath=True):
         d = torch.where(d_old < 0, -d, d)
         q1 = torch.where(d_old < 0, -q1, q1)
 
-    angle = torch.acos(d) + spin * torch.pi
+    angle = torch.acos(d - torch.sign(d)*(1e-6)) + spin * torch.pi
     angle_mask = (torch.abs(angle) < _EPS).squeeze()
     out[angle_mask] = q0[angle_mask]
 
