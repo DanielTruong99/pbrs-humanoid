@@ -339,14 +339,14 @@ class LegAMPCfgPPO(LeggedRobotCfgPPO):
         amp_reward_coef = 2.0
         amp_motion_files = MOTION_FILES
         amp_num_preload_transitions = 2000000
-        amp_task_reward_lerp = 0.3
+        amp_task_reward_lerp = 0.65
         amp_discr_hidden_dims = [1024, 512]
 
         min_normalized_std = [1.0] * 10
 
     class policy(LeggedRobotCfgPPO.policy):
-        actor_hidden_dims = [512, 256, 128]
-        critic_hidden_dims = [512, 256, 128]
+        actor_hidden_dims = [256, 256, 256]
+        critic_hidden_dims = [256, 256, 256]
         # (elu, relu, selu, crelu, lrelu, tanh, sigmoid)
         activation = 'elu'
 

@@ -53,7 +53,7 @@ DOF_NAMES = [
 ]
 
 def play(args):
-    args.task = 'leg'
+    args.task = 'leg_amp'
     # args.headless = True
     is_debug_visualize = True
     if is_debug_visualize:
@@ -170,7 +170,16 @@ def play(args):
 
     for i in range(1*int(env.max_episode_length)):
         actions = policy(obs.detach())
-        obs, _, rews, dones, infos = env.step(actions.detach())
+
+        '''
+            #! There are 2 types of step():
+                step() -> obs, privileged_obs, rews, dones, infos 
+                step() -> obs, privileged_obs, rews, reset, extras, reset_env_ids, terminal_amp_states
+        '''
+        if args.task == 'leg':
+            obs, _, rews, dones, infos = env.step(actions.detach())
+        elif args.task == 'leg_amp':
+            obs, privileged_obs, rews, reset, extras, reset_env_ids, terminal_amp_states = env.step(actions.detach())
 
         env.commands[:, 0] = 1.0   # 1.0
         env.commands[:, 1] = 0.
@@ -231,10 +240,11 @@ def play(args):
             pass
 
         if  0 < i < stop_rew_log:
-            if infos["episode"]:
-                num_episodes = torch.sum(env.reset_buf).item()
-                # if num_episodes>0:
-                    # logger.log_rewards(infos["episode"], num_episodes)
+            if args.task == 'leg':
+                if infos["episode"]:
+                    num_episodes = torch.sum(env.reset_buf).item()
+                    # if num_episodes>0:
+                        # logger.log_rewards(infos["episode"], num_episodes)
         elif i==stop_rew_log:
             logger.print_rewards()
 
